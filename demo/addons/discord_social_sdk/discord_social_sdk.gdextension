@@ -1,0 +1,29 @@
+[configuration]
+entry_symbol = "discord_social_sdk_library_init"
+compatibility_minimum = "4.2"
+reloadable = false
+
+[libraries]
+macos.debug = "res://addons/discord_social_sdk/bin/libdiscord_social_sdk.macos.template_debug.universal.dylib"
+macos.release = "res://addons/discord_social_sdk/bin/libdiscord_social_sdk.macos.template_release.universal.dylib"
+
+windows.debug.x86_64 = "res://addons/discord_social_sdk/bin/libdiscord_social_sdk.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/discord_social_sdk/bin/libdiscord_social_sdk.windows.template_release.x86_64.dll"
+windows.debug.arm64 = "res://addons/discord_social_sdk/bin/libdiscord_social_sdk.windows.template_debug.arm64.dll"
+windows.release.arm64 = "res://addons/discord_social_sdk/bin/libdiscord_social_sdk.windows.template_release.arm64.dll"
+
+linux.debug.x86_64 = "res://addons/discord_social_sdk/bin/libdiscord_social_sdk.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://addons/discord_social_sdk/bin/libdiscord_social_sdk.linux.template_release.x86_64.so"
+
+[dependencies]
+; Ship the Discord Social SDK runtime library next to the extension on export.
+macos.debug = { "res://addons/discord_social_sdk/bin/libdiscord_partner_sdk.dylib" : "" }
+macos.release = { "res://addons/discord_social_sdk/bin/libdiscord_partner_sdk.dylib" : "" }
+
+windows.debug.x86_64 = { "res://addons/discord_social_sdk/bin/discord_partner_sdk.dll" : "" }
+windows.release.x86_64 = { "res://addons/discord_social_sdk/bin/discord_partner_sdk.dll" : "" }
+windows.debug.arm64 = { "res://addons/discord_social_sdk/bin/arm64/discord_partner_sdk.dll" : "" }
+windows.release.arm64 = { "res://addons/discord_social_sdk/bin/arm64/discord_partner_sdk.dll" : "" }
+
+linux.debug.x86_64 = { "res://addons/discord_social_sdk/bin/libdiscord_partner_sdk.so" : "" }
+linux.release.x86_64 = { "res://addons/discord_social_sdk/bin/libdiscord_partner_sdk.so" : "" }

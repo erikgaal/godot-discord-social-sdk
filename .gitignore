@@ -1,0 +1,36 @@
+# Build artifacts
+*.os
+*.obj
+*.o
+*.so
+*.dll
+*.dylib
+*.lib
+*.exp
+*.pdb
+*.gen.*
+.sconsign.dblite
+__pycache__/
+
+# Built extension binaries (produced by SConstruct into the addon bin dir)
+demo/addons/discord_social_sdk/bin/*.so
+demo/addons/discord_social_sdk/bin/*.dll
+demo/addons/discord_social_sdk/bin/*.dylib
+demo/addons/discord_social_sdk/bin/*.framework
+demo/addons/discord_social_sdk/bin/*.lib
+demo/addons/discord_social_sdk/bin/*.pdb
+
+# Vendored Discord Social SDK (must be downloaded per-application from the
+# Discord Developer Portal — never commit the binaries).
+thirdparty/discord_social_sdk/include/
+thirdparty/discord_social_sdk/lib/
+thirdparty/discord_social_sdk/bin/
+
+# Godot
+.godot/
+*.translation
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
