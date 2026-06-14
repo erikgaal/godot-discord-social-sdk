@@ -19,6 +19,10 @@ x86_64), and Linux (x64)**.
 | SDK logging surfaced as a signal | ✅ |
 | Lobbies / voice / messaging | 🚧 not yet wrapped (extension points in place) |
 
+> **Versioning:** this addon uses its own SemVer, independent of the SDK.
+> Built and tested against **Discord Social SDK 1.9.16441**; call
+> `DiscordClient.get_sdk_version()` to see the version installed at runtime.
+
 > The Discord Social SDK binaries are gated behind the Discord Developer Portal
 > and tied to your application. They are **not** included in this repo — you
 > download them yourself (see below). Only the binding code is MIT-licensed.

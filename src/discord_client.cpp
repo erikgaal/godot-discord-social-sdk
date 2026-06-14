@@ -43,6 +43,7 @@ void DiscordClient::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("send_discord_friend_request", "username"), &DiscordClient::send_discord_friend_request);
 	ClassDB::bind_method(D_METHOD("get_current_user"), &DiscordClient::get_current_user);
 	ClassDB::bind_method(D_METHOD("get_status"), &DiscordClient::get_status);
+	ClassDB::bind_method(D_METHOD("get_sdk_version"), &DiscordClient::get_sdk_version);
 	ClassDB::bind_method(D_METHOD("poll"), &DiscordClient::poll);
 
 	// Status enum
@@ -233,6 +234,19 @@ Dictionary DiscordClient::get_current_user() const {
 
 DiscordClient::Status DiscordClient::get_status() const {
 	return status_;
+}
+
+Dictionary DiscordClient::get_sdk_version() const {
+	Dictionary out;
+	int major = discordpp::Client::GetVersionMajor();
+	int minor = discordpp::Client::GetVersionMinor();
+	int patch = discordpp::Client::GetVersionPatch();
+	out["major"] = major;
+	out["minor"] = minor;
+	out["patch"] = patch;
+	out["hash"] = to_godot(discordpp::Client::GetVersionHash());
+	out["string"] = vformat("%d.%d.%d", major, minor, patch);
+	return out;
 }
 
 void DiscordClient::poll() {

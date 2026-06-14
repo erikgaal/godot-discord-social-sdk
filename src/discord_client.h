@@ -85,6 +85,11 @@ public:
 
 	Status get_status() const;
 
+	// Returns the Discord Social SDK version the binding is running against:
+	// { major, minor, patch, hash, string }. Static SDK info — works without
+	// initialize().
+	Dictionary get_sdk_version() const;
+
 	// Pumps discordpp::RunCallbacks() every frame. Public so it can be driven
 	// manually in tests, but normally called automatically from _process().
 	void poll();

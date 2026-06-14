@@ -56,6 +56,15 @@ If you already have an OAuth2 bearer token (e.g. from your own backend), skip
 - `send_discord_friend_request(username: String)`
 - `get_current_user() -> Dictionary` — `{ id, username, display_name }`.
 - `get_status() -> int` — one of the `STATUS_*` constants.
+- `get_sdk_version() -> Dictionary` — `{ major, minor, patch, hash, string }`
+  for the Discord Social SDK the addon is running against. Works without
+  `initialize()`.
+
+## Versioning
+
+This addon uses its own SemVer, independent of the Discord Social SDK version.
+Each release notes the SDK version it was built against; call
+`get_sdk_version()` to see what's actually installed at runtime.
 
 **Signals**
 - `status_changed(status: int, error: int, error_detail: int)`

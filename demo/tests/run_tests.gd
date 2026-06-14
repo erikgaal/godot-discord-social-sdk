@@ -59,7 +59,7 @@ func _test_methods_present() -> void:
 		"initialize", "is_initialized", "connect_with_token", "begin_authorization",
 		"set_game_window_pid", "disconnect_client", "set_rich_presence",
 		"clear_rich_presence", "send_discord_friend_request", "get_current_user",
-		"get_status", "poll",
+		"get_status", "get_sdk_version", "poll",
 	]:
 		_check(inst.has_method(m), "method %s exists" % m)
 	inst.free()
@@ -91,6 +91,8 @@ func _test_default_state() -> void:
 	_check(inst.is_initialized() == false, "starts uninitialized")
 	_check(inst.get_status() == inst.STATUS_DISCONNECTED, "starts disconnected")
 	_check(inst.get_current_user().is_empty(), "no current user before connect")
+	var ver = inst.get_sdk_version()
+	_check(ver.has("string") and int(ver.get("major", 0)) >= 1, "reports SDK version (%s)" % ver.get("string", "?"))
 	inst.free()
 
 
