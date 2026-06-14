@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      sdk_url:
+        description: "Discord Social SDK download URL (from the Developer Portal; expires ~1h)"
+        required: true
+        type: string
 
 env:
   GODOT_VERSION: "4.4.1"
@@ -25,6 +30,7 @@ jobs:
       platform: ${{ matrix.platform }}
       arch: ${{ matrix.arch }}
       name: ${{ matrix.name }}
+      sdk_url: ${{ inputs.sdk_url || '' }}
     secrets: inherit
 
   test:
@@ -32,11 +38,11 @@ jobs:
     needs: build
     runs-on: ubuntu-22.04
     env:
-      DISCORD_SDK_URL: ${{ secrets.DISCORD_SDK_URL }}
+      DISCORD_SDK_URL: ${{ inputs.sdk_url != '' && inputs.sdk_url || secrets.DISCORD_SDK_URL }}
     steps:
       - name: Skip notice
         if: ${{ env.DISCORD_SDK_URL == '' }}
-        run: echo "::warning::DISCORD_SDK_URL not set — skipping tests (need built binaries)."
+        run: echo "::warning::No SDK URL — skipping tests (need built binaries)."
 
       - uses: actions/checkout@v4
         if: ${{ env.DISCORD_SDK_URL != '' }}

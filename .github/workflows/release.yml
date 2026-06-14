@@ -1,16 +1,20 @@
 name: Release
 
-# Cut a release by pushing a tag like v0.1.0. Builds every platform, packages
-# the addon (our binaries only — Discord's runtime libs are not redistributed),
-# and attaches the zip to a GitHub Release.
+# Cut a release by running this workflow manually (Actions → Release → Run
+# workflow) with a version and a fresh SDK download URL. It builds every
+# platform, packages the addon (our binaries only — Discord's runtime libs are
+# not redistributed), tags the commit, and attaches the zip to a draft Release.
 on:
-  push:
-    tags: ["v*"]
   workflow_dispatch:
     inputs:
       version:
         description: "Version (e.g. 0.1.0)"
         required: true
+        type: string
+      sdk_url:
+        description: "Discord Social SDK download URL (from the Developer Portal; expires ~1h)"
+        required: true
+        type: string
 
 jobs:
   build:
@@ -28,6 +32,7 @@ jobs:
       platform: ${{ matrix.platform }}
       arch: ${{ matrix.arch }}
       name: ${{ matrix.name }}
+      sdk_url: ${{ inputs.sdk_url || '' }}
     secrets: inherit
 
   package:
@@ -43,30 +48,22 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Resolve version
-        id: ver
-        run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
 
       - name: Package addon
-        run: python scripts/package_addon.py --version "${{ steps.ver.outputs.version }}" --bin artifacts
+        run: python scripts/package_addon.py --version "${{ inputs.version }}" --bin artifacts
 
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF_NAME:-v${{ steps.ver.outputs.version }}}" \
-            "dist/discord_social_sdk-${{ steps.ver.outputs.version }}.zip" \
-            --title "v${{ steps.ver.outputs.version }}" \
+          gh release create "v${{ inputs.version }}" \
+            "dist/discord_social_sdk-${{ inputs.version }}.zip" \
+            --title "v${{ inputs.version }}" \
+            --target "${GITHUB_SHA}" \
             --notes "Godot addon binaries for the Discord Social SDK.
 
           **Install:** unzip into your project's \`res://addons/\`, then add the Discord Social SDK runtime libraries (\`libdiscord_partner_sdk.*\` / \`discord_partner_sdk.dll\`) to \`addons/discord_social_sdk/bin/\` from your Discord Developer Portal download. See the addon README." \

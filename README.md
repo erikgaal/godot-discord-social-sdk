@@ -112,28 +112,35 @@ It exits non-zero on failure and runs in CI.
 
 Three workflows under `.github/workflows/`:
 
-- **`ci.yml`** — on push/PR: builds debug+release for all four platform/arch
-  targets (via the reusable `_build.yml`) and runs the headless tests on Linux.
-- **`release.yml`** — on a `v*` tag (or manual dispatch): builds every platform,
-  packages the addon, and attaches `discord_social_sdk-<version>.zip` to a
+- **`ci.yml`** — builds debug+release for all four platform/arch targets (via
+  the reusable `_build.yml`) and runs the headless tests on Linux.
+- **`release.yml`** — manual dispatch: builds every platform, packages the
+  addon, tags the commit, and attaches `discord_social_sdk-<version>.zip` to a
   **draft** GitHub Release. Release archives contain only this project's
   binaries — **not** Discord's runtime libraries (users add those from their own
   Developer Portal download).
 - **`_build.yml`** — reusable build job shared by the two above.
 
-### Required secret
-Because the SDK can't be fetched anonymously, set a repository secret
-**`DISCORD_SDK_URL`** to a direct download URL for a zipped SDK (the archive must
-contain a `discord_social_sdk/` folder with `include/discordpp.h`). Host it
-somewhere your CI can reach (e.g. a private release asset or object store).
-Without the secret the native build/test steps are skipped — expected on fork
-PRs, which can't read secrets.
+### Providing the SDK to CI
+The SDK can't be fetched anonymously, so each native build needs a download
+URL. The Developer Portal generates a **fresh, ~1-hour signed URL** per
+download, so the workflows take it as a dispatch input rather than storing it:
+
+1. Download the SDK link from the Developer Portal (right-click → copy link, or
+   start a download and copy its URL).
+2. **Actions → CI → Run workflow**, paste the URL into `sdk_url`, and run. The
+   job downloads + builds within the URL's validity window.
+
+Push/PR runs (which have no URL input) skip the native steps with a warning —
+expected, and the only option for fork PRs, which can't read secrets anyway. If
+you have a *stable* SDK URL, you can instead set it as a repository secret
+**`DISCORD_SDK_URL`** and the workflows will use it automatically without a
+dispatch input.
 
 ### Cutting a release
-```bash
-git tag v0.1.0 && git push origin v0.1.0
-```
-This runs `release.yml` and creates a draft release; review and publish it.
+**Actions → Release → Run workflow**, enter the `version` (e.g. `0.1.0`) and a
+fresh `sdk_url`. It builds all platforms, creates tag `v<version>` on the
+current commit, and uploads a draft release zip for you to review and publish.
 
 ## Troubleshooting
 

@@ -23,19 +23,25 @@ on:
       name:
         required: true
         type: string
+      sdk_url:
+        description: "Ephemeral Discord Social SDK download URL (overrides the secret)"
+        required: false
+        type: string
+        default: ""
 
 jobs:
   build:
     name: ${{ inputs.name }}
     runs-on: ${{ inputs.runner }}
     env:
-      DISCORD_SDK_URL: ${{ secrets.DISCORD_SDK_URL }}
+      # Prefer the per-run URL passed at dispatch; fall back to a stored secret.
+      DISCORD_SDK_URL: ${{ inputs.sdk_url != '' && inputs.sdk_url || secrets.DISCORD_SDK_URL }}
     steps:
-      - name: Notice when SDK secret is missing
+      - name: Notice when no SDK URL is available
         if: ${{ env.DISCORD_SDK_URL == '' }}
         run: |
-          echo "::warning::DISCORD_SDK_URL secret not set — skipping native build."
-          echo "Set it to a zipped Discord Social SDK download URL to enable builds."
+          echo "::warning::No Discord Social SDK URL — skipping native build."
+          echo "Dispatch this workflow with an 'sdk_url' input, or set a DISCORD_SDK_URL secret."
 
       - uses: actions/checkout@v4
         if: ${{ env.DISCORD_SDK_URL != '' }}
