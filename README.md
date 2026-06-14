@@ -1,7 +1,6 @@
 # Godot Discord Social SDK
 
-<!-- Replace OWNER/REPO once published, then this badge goes live. -->
-[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+[![CI](https://github.com/erikgaal/godot-discord-social-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/erikgaal/godot-discord-social-sdk/actions/workflows/ci.yml)
 
 A **Godot 4 GDExtension** binding for the [Discord Social SDK](https://discord.com/developers/docs/discord-social-sdk/overview)
 — the modern replacement for the deprecated Discord Game SDK. Written in C++
