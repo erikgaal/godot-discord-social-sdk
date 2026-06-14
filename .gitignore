@@ -26,6 +26,9 @@ thirdparty/discord_social_sdk/include/
 thirdparty/discord_social_sdk/lib/
 thirdparty/discord_social_sdk/bin/
 
+# Packaged release output
+dist/
+
 # Godot
 .godot/
 *.translation

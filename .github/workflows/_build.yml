@@ -1,0 +1,73 @@
+# Reusable workflow: build the extension for one platform/arch and upload the
+# compiled binaries as an artifact. Called by ci.yml and release.yml.
+#
+# The Discord Social SDK is gated behind the Developer Portal, so it cannot be
+# fetched anonymously. Set the repository secret DISCORD_SDK_URL to a direct
+# download URL for a zipped SDK (the archive must contain a
+# `discord_social_sdk/` folder with include/discordpp.h). When the secret is
+# absent the build steps are skipped — expected on fork PRs.
+name: build (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        required: true
+        type: string
+      platform:
+        required: true
+        type: string
+      arch:
+        required: true
+        type: string
+      name:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: ${{ inputs.name }}
+    runs-on: ${{ inputs.runner }}
+    env:
+      DISCORD_SDK_URL: ${{ secrets.DISCORD_SDK_URL }}
+    steps:
+      - name: Notice when SDK secret is missing
+        if: ${{ env.DISCORD_SDK_URL == '' }}
+        run: |
+          echo "::warning::DISCORD_SDK_URL secret not set — skipping native build."
+          echo "Set it to a zipped Discord Social SDK download URL to enable builds."
+
+      - uses: actions/checkout@v4
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v5
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+        with:
+          python-version: "3.x"
+
+      - name: Install SCons
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+        run: pip install scons
+
+      - name: Fetch Discord Social SDK
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+        run: python scripts/fetch_sdk.py "$DISCORD_SDK_URL"
+        shell: bash
+
+      - name: Build (debug + release)
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+        run: |
+          scons platform=${{ inputs.platform }} arch=${{ inputs.arch }} target=template_debug
+          scons platform=${{ inputs.platform }} arch=${{ inputs.arch }} target=template_release
+        shell: bash
+
+      - name: Upload extension binaries
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: bin-${{ inputs.name }}
+          if-no-files-found: error
+          # Only our binaries — never Discord's runtime libraries.
+          path: demo/addons/discord_social_sdk/bin/libdiscord_social_sdk.*

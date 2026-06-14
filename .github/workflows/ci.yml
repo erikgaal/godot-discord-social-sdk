@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.4.1"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: linux-x86_64, runner: ubuntu-22.04, platform: linux, arch: x86_64 }
+          - { name: macos-universal, runner: macos-14, platform: macos, arch: universal }
+          - { name: windows-x86_64, runner: windows-2022, platform: windows, arch: x86_64 }
+          - { name: windows-arm64, runner: windows-2022, platform: windows, arch: arm64 }
+    uses: ./.github/workflows/_build.yml
+    with:
+      runner: ${{ matrix.runner }}
+      platform: ${{ matrix.platform }}
+      arch: ${{ matrix.arch }}
+      name: ${{ matrix.name }}
+    secrets: inherit
+
+  test:
+    name: Headless tests (Linux)
+    needs: build
+    runs-on: ubuntu-22.04
+    env:
+      DISCORD_SDK_URL: ${{ secrets.DISCORD_SDK_URL }}
+    steps:
+      - name: Skip notice
+        if: ${{ env.DISCORD_SDK_URL == '' }}
+        run: echo "::warning::DISCORD_SDK_URL not set — skipping tests (need built binaries)."
+
+      - uses: actions/checkout@v4
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+
+      - name: Download Linux extension binary
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: bin-linux-x86_64
+          path: demo/addons/discord_social_sdk/bin/
+
+      - name: Stage Discord runtime lib
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+        run: |
+          python scripts/fetch_sdk.py "$DISCORD_SDK_URL"
+        shell: bash
+
+      - name: Install Godot ${{ env.GODOT_VERSION }}
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+        run: |
+          curl -L -o godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          chmod +x godot
+
+      - name: Import project
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+        run: ./godot --headless --path demo --import || true
+
+      - name: Run tests
+        if: ${{ env.DISCORD_SDK_URL != '' }}
+        run: ./godot --headless --path demo --script res://tests/run_tests.gd

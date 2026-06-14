@@ -1,5 +1,8 @@
 # Godot Discord Social SDK
 
+<!-- Replace OWNER/REPO once published, then this badge goes live. -->
+[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+
 A **Godot 4 GDExtension** binding for the [Discord Social SDK](https://discord.com/developers/docs/discord-social-sdk/overview)
 — the modern replacement for the deprecated Discord Game SDK. Written in C++
 on top of [godot-cpp](https://github.com/godotengine/godot-cpp), usable from
@@ -106,12 +109,32 @@ godot --headless --path demo --script res://tests/run_tests.gd
 
 It exits non-zero on failure and runs in CI.
 
-## CI
+## CI & releases
 
-`.github/workflows/build.yml` builds debug+release for all four platform/arch
-targets and runs the tests. Because the SDK can't be fetched anonymously, set a
-repository secret `DISCORD_SDK_URL` pointing to a zipped SDK; without it the
-native build steps are skipped.
+Three workflows under `.github/workflows/`:
+
+- **`ci.yml`** — on push/PR: builds debug+release for all four platform/arch
+  targets (via the reusable `_build.yml`) and runs the headless tests on Linux.
+- **`release.yml`** — on a `v*` tag (or manual dispatch): builds every platform,
+  packages the addon, and attaches `discord_social_sdk-<version>.zip` to a
+  **draft** GitHub Release. Release archives contain only this project's
+  binaries — **not** Discord's runtime libraries (users add those from their own
+  Developer Portal download).
+- **`_build.yml`** — reusable build job shared by the two above.
+
+### Required secret
+Because the SDK can't be fetched anonymously, set a repository secret
+**`DISCORD_SDK_URL`** to a direct download URL for a zipped SDK (the archive must
+contain a `discord_social_sdk/` folder with `include/discordpp.h`). Host it
+somewhere your CI can reach (e.g. a private release asset or object store).
+Without the secret the native build/test steps are skipped — expected on fork
+PRs, which can't read secrets.
+
+### Cutting a release
+```bash
+git tag v0.1.0 && git push origin v0.1.0
+```
+This runs `release.yml` and creates a draft release; review and publish it.
 
 ## Troubleshooting
 
