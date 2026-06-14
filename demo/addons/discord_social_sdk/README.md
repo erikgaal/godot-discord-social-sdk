@@ -79,6 +79,23 @@ the token was issued for your app — no client-side token to trust.
   `initialize()` already sets this to the Godot process.
 - `disconnect_client()`
 - `set_rich_presence(details: String, state: String, activity_type := DiscordClient.ACTIVITY_PLAYING)`
+  — shortcut for the common details/state/type case.
+- `set_activity(activity: Dictionary)` — full Rich Presence (Activity). Recognised keys:
+  ```gdscript
+  Discord.set_activity({
+      "type": DiscordClient.ACTIVITY_PLAYING,   # default if omitted
+      "details": "Playing Capture the Flag",    # top line
+      "state": "In Match",                      # second line
+      "timestamps": {"start": 1718400000},      # Unix secs; shows elapsed/remaining
+      "party": {"id": "abc", "size": 2, "max": 4},   # shows "2 of 4"
+      "assets": {                               # image = Art Asset name (Dev Portal) or URL
+          "large_image": "map_dust2", "large_text": "Dust II",
+          "small_image": "rank_gold", "small_text": "Gold III",
+      },
+  })
+  ```
+  Omitted keys are left unset; empty strings are ignored. (Join/spectate `secrets` and
+  `supported_platforms` aren't bound yet — they need invite-event handling.)
 - `clear_rich_presence()`
 - `send_discord_friend_request(username: String)`
 - `get_current_user() -> Dictionary` — `{ id, username, display_name }`.

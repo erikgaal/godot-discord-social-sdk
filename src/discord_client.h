@@ -81,8 +81,22 @@ public:
 	// Tear down the connection. Safe to call when not connected.
 	void disconnect_client();
 
-	// Rich presence. `activity_type` is one of the ActivityType values.
+	// Rich presence shortcut for the common case — sets only details/state/type.
+	// Equivalent to set_activity({"details": ..., "state": ..., "type": ...}).
 	void set_rich_presence(const String &details, const String &state, ActivityType activity_type);
+
+	// Full Rich Presence (Activity). Pass a Dictionary; recognised keys:
+	//   type:int            — an ActivityType value (default ACTIVITY_PLAYING)
+	//   name:String         — app/game name override (usually left to the SDK)
+	//   details:String      — main line ("Playing Capture the Flag")
+	//   state:String        — secondary line ("In Match")
+	//   timestamps:{ start:int, end:int }   — Unix seconds; Discord shows elapsed/remaining
+	//   party:{ id:String, size:int, max:int }   — shows "size of max"
+	//   assets:{ large_image:String, large_text:String, small_image:String, small_text:String }
+	//                         — image values are Art Asset names from the Dev Portal (or URLs)
+	// Omitted keys are left unset; empty strings are ignored.
+	void set_activity(const Dictionary &activity);
+
 	void clear_rich_presence();
 
 	// Send a Discord friend request to the given username.
