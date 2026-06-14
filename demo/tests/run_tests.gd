@@ -57,8 +57,9 @@ func _test_methods_present() -> void:
 	var inst = ClassDB.instantiate("DiscordClient")
 	for m in [
 		"initialize", "is_initialized", "connect_with_token", "begin_authorization",
-		"disconnect_client", "set_rich_presence", "clear_rich_presence",
-		"send_discord_friend_request", "get_current_user", "get_status", "poll",
+		"set_game_window_pid", "disconnect_client", "set_rich_presence",
+		"clear_rich_presence", "send_discord_friend_request", "get_current_user",
+		"get_status", "poll",
 	]:
 		_check(inst.has_method(m), "method %s exists" % m)
 	inst.free()

@@ -58,10 +58,16 @@ public:
 	// own backend). Calls UpdateToken then Connect.
 	void connect_with_token(const String &access_token);
 
-	// Run the full OAuth2 + PKCE authorization flow. This opens Discord in the
-	// user's browser; on success it connects automatically and emits
+	// Run the full OAuth2 + PKCE authorization flow. If the Discord overlay is
+	// enabled the prompt appears in-game; otherwise it falls back to the
+	// browser. On success it connects automatically and emits
 	// `authorization_completed`.
 	void begin_authorization();
+
+	// Tell the SDK which window/process the authentication overlay should
+	// attach to. initialize() already sets this to the running Godot process;
+	// override it only if your game window lives in a different process.
+	void set_game_window_pid(int32_t pid);
 
 	// Tear down the connection. Safe to call when not connected.
 	void disconnect_client();

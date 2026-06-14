@@ -48,6 +48,8 @@ If you already have an OAuth2 bearer token (e.g. from your own backend), skip
 - `initialize(application_id: int)` — create the client; call first.
 - `begin_authorization()` — full OAuth2 + PKCE flow (opens browser, connects).
 - `connect_with_token(access_token: String)` — connect with an existing token.
+- `set_game_window_pid(pid: int)` — window the auth overlay attaches to;
+  `initialize()` already sets this to the Godot process.
 - `disconnect_client()`
 - `set_rich_presence(details: String, state: String, activity_type := DiscordClient.ACTIVITY_PLAYING)`
 - `clear_rich_presence()`

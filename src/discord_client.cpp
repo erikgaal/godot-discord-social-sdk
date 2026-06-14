@@ -1,6 +1,7 @@
 #include "discord_client.h"
 
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/os.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -35,6 +36,7 @@ void DiscordClient::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_initialized"), &DiscordClient::is_initialized);
 	ClassDB::bind_method(D_METHOD("connect_with_token", "access_token"), &DiscordClient::connect_with_token);
 	ClassDB::bind_method(D_METHOD("begin_authorization"), &DiscordClient::begin_authorization);
+	ClassDB::bind_method(D_METHOD("set_game_window_pid", "pid"), &DiscordClient::set_game_window_pid);
 	ClassDB::bind_method(D_METHOD("disconnect_client"), &DiscordClient::disconnect_client);
 	ClassDB::bind_method(D_METHOD("set_rich_presence", "details", "state", "activity_type"), &DiscordClient::set_rich_presence, DEFVAL(ACTIVITY_PLAYING));
 	ClassDB::bind_method(D_METHOD("clear_rich_presence"), &DiscordClient::clear_rich_presence);
@@ -91,6 +93,10 @@ void DiscordClient::initialize(uint64_t application_id) {
 	application_id_ = application_id;
 	client_ = std::make_shared<discordpp::Client>();
 	client_->SetApplicationId(application_id);
+
+	// Attach the auth overlay to the running Godot process by default so the
+	// authentication prompt can render in-game instead of opening a browser.
+	client_->SetGameWindowPid((int32_t)OS::get_singleton()->get_process_id());
 
 	client_->AddLogCallback(
 			[this](std::string message, discordpp::LoggingSeverity severity) {
@@ -166,6 +172,11 @@ void DiscordClient::begin_authorization() {
 									});
 						});
 			});
+}
+
+void DiscordClient::set_game_window_pid(int32_t pid) {
+	ERR_FAIL_NULL_MSG(client_, "DiscordClient not initialized. Call initialize() first.");
+	client_->SetGameWindowPid(pid);
 }
 
 void DiscordClient::disconnect_client() {

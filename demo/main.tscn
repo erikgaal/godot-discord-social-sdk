@@ -1,128 +1,132 @@
-[gd_scene load_steps=2 format=3 uid="uid://b1discordsocialdemo0"]
+[gd_scene format=3 uid="uid://d25o4simxis0l"]
 
-[ext_resource type="Script" path="res://main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://cqfxm17oyvljd" path="res://main.gd" id="1_main"]
 
-[node name="Main" type="Control"]
+[node name="Main" type="Control" unique_id=768813584]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_main")
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="." unique_id=411923706]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
+[node name="VBox" type="VBoxContainer" parent="Margin" unique_id=387275101]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="Margin/VBox"]
+[node name="Title" type="Label" parent="Margin/VBox" unique_id=10912854]
 layout_mode = 2
 text = "Discord Social SDK — Demo"
 horizontal_alignment = 1
 
-[node name="InitRow" type="HBoxContainer" parent="Margin/VBox"]
+[node name="InitRow" type="HBoxContainer" parent="Margin/VBox" unique_id=540326464]
 layout_mode = 2
 
-[node name="AppIdLabel" type="Label" parent="Margin/VBox/InitRow"]
+[node name="AppIdLabel" type="Label" parent="Margin/VBox/InitRow" unique_id=149258398]
 layout_mode = 2
 text = "Application ID:"
 
-[node name="AppIdEdit" type="LineEdit" parent="Margin/VBox/InitRow"]
+[node name="AppIdEdit" type="LineEdit" parent="Margin/VBox/InitRow" unique_id=330866824]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Your Discord application ID"
 
-[node name="InitButton" type="Button" parent="Margin/VBox/InitRow"]
+[node name="InitButton" type="Button" parent="Margin/VBox/InitRow" unique_id=1538402164]
 layout_mode = 2
 text = "Initialize"
 
-[node name="AuthRow" type="HBoxContainer" parent="Margin/VBox"]
+[node name="AuthRow" type="HBoxContainer" parent="Margin/VBox" unique_id=472690082]
 layout_mode = 2
 
-[node name="AuthorizeButton" type="Button" parent="Margin/VBox/AuthRow"]
+[node name="AuthorizeButton" type="Button" parent="Margin/VBox/AuthRow" unique_id=1643337989]
 layout_mode = 2
 text = "Authorize (open browser)"
 
-[node name="TokenRow" type="HBoxContainer" parent="Margin/VBox"]
+[node name="TokenRow" type="HBoxContainer" parent="Margin/VBox" unique_id=851087892]
 layout_mode = 2
 
-[node name="TokenEdit" type="LineEdit" parent="Margin/VBox/TokenRow"]
+[node name="TokenEdit" type="LineEdit" parent="Margin/VBox/TokenRow" unique_id=957989215]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "…or paste an OAuth2 access token"
 
-[node name="ConnectTokenButton" type="Button" parent="Margin/VBox/TokenRow"]
+[node name="ConnectTokenButton" type="Button" parent="Margin/VBox/TokenRow" unique_id=1928738281]
 layout_mode = 2
 text = "Connect with token"
 
-[node name="StatusLabel" type="Label" parent="Margin/VBox"]
+[node name="StatusLabel" type="Label" parent="Margin/VBox" unique_id=1460778197]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Status: Disconnected"
 
-[node name="UserLabel" type="Label" parent="Margin/VBox"]
+[node name="UserLabel" type="Label" parent="Margin/VBox" unique_id=1275352070]
 unique_name_in_owner = true
 layout_mode = 2
 text = "User: —"
 
-[node name="PresenceSep" type="HSeparator" parent="Margin/VBox"]
+[node name="PresenceSep" type="HSeparator" parent="Margin/VBox" unique_id=680731097]
 layout_mode = 2
 
-[node name="PresenceRow" type="HBoxContainer" parent="Margin/VBox"]
+[node name="PresenceRow" type="HBoxContainer" parent="Margin/VBox" unique_id=352080111]
 layout_mode = 2
 
-[node name="DetailsEdit" type="LineEdit" parent="Margin/VBox/PresenceRow"]
+[node name="DetailsEdit" type="LineEdit" parent="Margin/VBox/PresenceRow" unique_id=1810735835]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Details (e.g. In a match)"
 
-[node name="StateEdit" type="LineEdit" parent="Margin/VBox/PresenceRow"]
+[node name="StateEdit" type="LineEdit" parent="Margin/VBox/PresenceRow" unique_id=2099344841]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "State (e.g. Round 3)"
 
-[node name="SetPresenceButton" type="Button" parent="Margin/VBox/PresenceRow"]
+[node name="SetPresenceButton" type="Button" parent="Margin/VBox/PresenceRow" unique_id=2101883553]
 layout_mode = 2
 text = "Set presence"
 
-[node name="ClearPresenceButton" type="Button" parent="Margin/VBox/PresenceRow"]
+[node name="ClearPresenceButton" type="Button" parent="Margin/VBox/PresenceRow" unique_id=1811950510]
 layout_mode = 2
 text = "Clear"
 
-[node name="FriendRow" type="HBoxContainer" parent="Margin/VBox"]
+[node name="FriendRow" type="HBoxContainer" parent="Margin/VBox" unique_id=1850704940]
 layout_mode = 2
 
-[node name="FriendEdit" type="LineEdit" parent="Margin/VBox/FriendRow"]
+[node name="FriendEdit" type="LineEdit" parent="Margin/VBox/FriendRow" unique_id=347325979]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Username to friend"
 
-[node name="SendFriendButton" type="Button" parent="Margin/VBox/FriendRow"]
+[node name="SendFriendButton" type="Button" parent="Margin/VBox/FriendRow" unique_id=565420068]
 layout_mode = 2
 text = "Send friend request"
 
-[node name="DisconnectButton" type="Button" parent="Margin/VBox"]
+[node name="DisconnectButton" type="Button" parent="Margin/VBox" unique_id=1467449829]
 layout_mode = 2
 text = "Disconnect"
 
-[node name="LogPanel" type="PanelContainer" parent="Margin/VBox"]
+[node name="LogPanel" type="PanelContainer" parent="Margin/VBox" unique_id=1116056125]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="LogText" type="RichTextLabel" parent="Margin/VBox/LogPanel"]
+[node name="LogText" type="RichTextLabel" parent="Margin/VBox/LogPanel" unique_id=287476203]
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
