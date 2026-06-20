@@ -58,7 +58,7 @@ func _test_methods_present() -> void:
 	for m in [
 		"initialize", "is_initialized", "connect_with_token", "begin_authorization",
 		"request_authorization_code",
-		"set_game_window_pid", "disconnect_client", "set_rich_presence",
+		"set_game_window_pid", "disconnect_client", "set_rich_presence", "set_activity",
 		"clear_rich_presence", "send_discord_friend_request", "get_current_user",
 		"get_status", "get_sdk_version", "poll",
 	]:

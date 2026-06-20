@@ -73,8 +73,21 @@ func _on_connect_token_pressed() -> void:
 
 
 func _on_set_presence_pressed() -> void:
-	Discord.set_rich_presence(details_edit.text, state_edit.text, DiscordClient.ACTIVITY_PLAYING)
-	_log("Updating rich presence…")
+	# Showcase the full set_activity() API: details/state from the fields plus a
+	# live elapsed timer, a party, and image assets. Image names must match Art
+	# Assets configured for your app in the Discord Developer Portal (or be URLs)
+	# to actually render; unknown names simply show no image.
+	Discord.set_activity({
+		"type": DiscordClient.ACTIVITY_PLAYING,
+		"details": details_edit.text,
+		"state": state_edit.text,
+		"timestamps": {"start": int(Time.get_unix_time_from_system())},
+		"party": {"id": "demo-party", "size": 1, "max": 4},
+		"assets": {
+			"large_image": "logo", "large_text": "Discord Social SDK Demo",
+		},
+	})
+	_log("Updating rich presence via set_activity…")
 
 
 func _on_clear_presence_pressed() -> void:
