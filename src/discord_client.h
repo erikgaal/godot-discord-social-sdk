@@ -45,6 +45,20 @@ public:
 		ACTIVITY_COMPETING = 5,
 	};
 
+	// Mirrors discordpp::StatusDisplayTypes — which Activity field shows next to
+	// the user's name in the member list / status.
+	enum StatusDisplayType {
+		STATUS_DISPLAY_NAME = 0,
+		STATUS_DISPLAY_STATE = 1,
+		STATUS_DISPLAY_DETAILS = 2,
+	};
+
+	// Mirrors discordpp::ActivityPartyPrivacy.
+	enum PartyPrivacy {
+		PARTY_PRIVACY_PRIVATE = 0,
+		PARTY_PRIVACY_PUBLIC = 1,
+	};
+
 	DiscordClient();
 	~DiscordClient();
 
@@ -89,12 +103,20 @@ public:
 	//   type:int            — an ActivityType value (default ACTIVITY_PLAYING)
 	//   name:String         — app/game name override (usually left to the SDK)
 	//   details:String      — main line ("Playing Capture the Flag")
+	//   details_url:String  — makes the details line clickable
 	//   state:String        — secondary line ("In Match")
+	//   state_url:String    — makes the state line clickable
+	//   status_display_type:int  — a StatusDisplayType value (which field shows by the name)
 	//   timestamps:{ start:int, end:int }   — Unix seconds; Discord shows elapsed/remaining
-	//   party:{ id:String, size:int, max:int }   — shows "size of max"
-	//   assets:{ large_image:String, large_text:String, small_image:String, small_text:String }
+	//   party:{ id:String, size:int, max:int, privacy:int }   — shows "size of max";
+	//                         privacy is a PartyPrivacy value
+	//   assets:{ large_image:String, large_text:String, large_url:String,
+	//            small_image:String, small_text:String, small_url:String,
+	//            invite_cover_image:String }
 	//                         — image values are Art Asset names from the Dev Portal (or URLs)
-	// Omitted keys are left unset; empty strings are ignored.
+	//   buttons:[ { label:String, url:String }, … ]   — up to two link buttons
+	// Omitted keys are left unset; empty strings are ignored. Join/spectate
+	// secrets and supported_platforms (invites) are not bound yet.
 	void set_activity(const Dictionary &activity);
 
 	void clear_rich_presence();
@@ -136,5 +158,7 @@ private:
 
 VARIANT_ENUM_CAST(godot::DiscordClient::Status);
 VARIANT_ENUM_CAST(godot::DiscordClient::ActivityType);
+VARIANT_ENUM_CAST(godot::DiscordClient::StatusDisplayType);
+VARIANT_ENUM_CAST(godot::DiscordClient::PartyPrivacy);
 
 #endif // DISCORD_CLIENT_H

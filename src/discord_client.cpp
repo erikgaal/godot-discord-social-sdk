@@ -3,6 +3,7 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/os.hpp>
 #include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 // discordpp.h is included WITHOUT DISCORDPP_IMPLEMENTATION here; the
@@ -47,7 +48,13 @@ discordpp::Activity build_activity(const Dictionary &d) {
 
 	apply_string(d, "name", [&](std::string v) { activity.SetName(v); });
 	apply_string(d, "details", [&](std::string v) { activity.SetDetails(v); });
+	apply_string(d, "details_url", [&](std::string v) { activity.SetDetailsUrl(v); });
 	apply_string(d, "state", [&](std::string v) { activity.SetState(v); });
+	apply_string(d, "state_url", [&](std::string v) { activity.SetStateUrl(v); });
+
+	if (d.has("status_display_type")) {
+		activity.SetStatusDisplayType((discordpp::StatusDisplayTypes)(int)(int64_t)d["status_display_type"]);
+	}
 
 	if (d.has("timestamps")) {
 		Dictionary t = d["timestamps"];
@@ -71,6 +78,9 @@ discordpp::Activity build_activity(const Dictionary &d) {
 		if (p.has("max")) {
 			party.SetMaxSize((int32_t)(int64_t)p["max"]);
 		}
+		if (p.has("privacy")) {
+			party.SetPrivacy((discordpp::ActivityPartyPrivacy)(int)(int64_t)p["privacy"]);
+		}
 		activity.SetParty(party);
 	}
 
@@ -79,9 +89,30 @@ discordpp::Activity build_activity(const Dictionary &d) {
 		discordpp::ActivityAssets assets;
 		apply_string(a, "large_image", [&](std::string v) { assets.SetLargeImage(v); });
 		apply_string(a, "large_text", [&](std::string v) { assets.SetLargeText(v); });
+		apply_string(a, "large_url", [&](std::string v) { assets.SetLargeUrl(v); });
 		apply_string(a, "small_image", [&](std::string v) { assets.SetSmallImage(v); });
 		apply_string(a, "small_text", [&](std::string v) { assets.SetSmallText(v); });
+		apply_string(a, "small_url", [&](std::string v) { assets.SetSmallUrl(v); });
+		apply_string(a, "invite_cover_image", [&](std::string v) { assets.SetInviteCoverImage(v); });
 		activity.SetAssets(assets);
+	}
+
+	// Up to two link buttons. Each entry is { label, url }; both are required for
+	// the button to be useful, so skip entries missing either.
+	if (d.has("buttons")) {
+		Array buttons = d["buttons"];
+		for (int i = 0; i < buttons.size(); i++) {
+			Dictionary b = buttons[i];
+			String label = b.get("label", "");
+			String url = b.get("url", "");
+			if (label.is_empty() || url.is_empty()) {
+				continue;
+			}
+			discordpp::ActivityButton button;
+			button.SetLabel(to_std(label));
+			button.SetUrl(to_std(url));
+			activity.AddButton(button);
+		}
 	}
 
 	return activity;
@@ -128,6 +159,15 @@ void DiscordClient::_bind_methods() {
 	BIND_ENUM_CONSTANT(ACTIVITY_WATCHING);
 	BIND_ENUM_CONSTANT(ACTIVITY_CUSTOM);
 	BIND_ENUM_CONSTANT(ACTIVITY_COMPETING);
+
+	// StatusDisplayType enum
+	BIND_ENUM_CONSTANT(STATUS_DISPLAY_NAME);
+	BIND_ENUM_CONSTANT(STATUS_DISPLAY_STATE);
+	BIND_ENUM_CONSTANT(STATUS_DISPLAY_DETAILS);
+
+	// PartyPrivacy enum
+	BIND_ENUM_CONSTANT(PARTY_PRIVACY_PRIVATE);
+	BIND_ENUM_CONSTANT(PARTY_PRIVACY_PUBLIC);
 
 	// Signals. The `status` argument is typed as the DiscordClient.Status enum
 	// so GDScript handlers get the enum type (not a bare int).

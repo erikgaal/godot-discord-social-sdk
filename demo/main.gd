@@ -10,14 +10,20 @@ extends Control
 @onready var details_edit: LineEdit = %DetailsEdit
 @onready var state_edit: LineEdit = %StateEdit
 @onready var type_option: OptionButton = %TypeOption
+@onready var status_display_option: OptionButton = %StatusDisplayOption
 @onready var elapsed_check: CheckBox = %ElapsedCheck
 @onready var party_id_edit: LineEdit = %PartyIdEdit
 @onready var party_size_spin: SpinBox = %PartySizeSpin
 @onready var party_max_spin: SpinBox = %PartyMaxSpin
+@onready var party_privacy_option: OptionButton = %PartyPrivacyOption
 @onready var large_image_edit: LineEdit = %LargeImageEdit
 @onready var large_text_edit: LineEdit = %LargeTextEdit
 @onready var small_image_edit: LineEdit = %SmallImageEdit
 @onready var small_text_edit: LineEdit = %SmallTextEdit
+@onready var button1_label_edit: LineEdit = %Button1LabelEdit
+@onready var button1_url_edit: LineEdit = %Button1UrlEdit
+@onready var button2_label_edit: LineEdit = %Button2LabelEdit
+@onready var button2_url_edit: LineEdit = %Button2UrlEdit
 @onready var friend_edit: LineEdit = %FriendEdit
 
 const ACTIVITY_TYPES := [
@@ -27,6 +33,17 @@ const ACTIVITY_TYPES := [
 	["Watching", DiscordClient.ACTIVITY_WATCHING],
 	["Custom", DiscordClient.ACTIVITY_CUSTOM],
 	["Competing", DiscordClient.ACTIVITY_COMPETING],
+]
+
+const STATUS_DISPLAY_TYPES := [
+	["Name", DiscordClient.STATUS_DISPLAY_NAME],
+	["State", DiscordClient.STATUS_DISPLAY_STATE],
+	["Details", DiscordClient.STATUS_DISPLAY_DETAILS],
+]
+
+const PARTY_PRIVACIES := [
+	["Private", DiscordClient.PARTY_PRIVACY_PRIVATE],
+	["Public", DiscordClient.PARTY_PRIVACY_PUBLIC],
 ]
 @onready var log_text: RichTextLabel = %LogText
 
@@ -50,6 +67,10 @@ func _ready() -> void:
 	Discord.friend_request_sent.connect(_on_friend_request_sent)
 	for entry in ACTIVITY_TYPES:
 		type_option.add_item(entry[0], entry[1])
+	for entry in STATUS_DISPLAY_TYPES:
+		status_display_option.add_item(entry[0], entry[1])
+	for entry in PARTY_PRIVACIES:
+		party_privacy_option.add_item(entry[0], entry[1])
 	_set_status(DiscordClient.STATUS_DISCONNECTED)
 
 
@@ -99,6 +120,7 @@ func _on_set_presence_pressed() -> void:
 		"type": type_option.get_selected_id(),
 		"details": details_edit.text,
 		"state": state_edit.text,
+		"status_display_type": status_display_option.get_selected_id(),
 	}
 
 	if elapsed_check.button_pressed:
@@ -110,6 +132,7 @@ func _on_set_presence_pressed() -> void:
 			"id": party_id,
 			"size": int(party_size_spin.value),
 			"max": int(party_max_spin.value),
+			"privacy": party_privacy_option.get_selected_id(),
 		}
 
 	# Note: image values must match Art Assets configured for your app in the
@@ -125,6 +148,15 @@ func _on_set_presence_pressed() -> void:
 		assets["small_text"] = small_text_edit.text
 	if not assets.is_empty():
 		activity["assets"] = assets
+
+	var buttons := []
+	for pair in [[button1_label_edit, button1_url_edit], [button2_label_edit, button2_url_edit]]:
+		var label: String = pair[0].text.strip_edges()
+		var url: String = pair[1].text.strip_edges()
+		if not label.is_empty() and not url.is_empty():
+			buttons.append({"label": label, "url": url})
+	if not buttons.is_empty():
+		activity["buttons"] = buttons
 
 	Discord.set_activity(activity)
 	_log("Updating rich presence via set_activity…")

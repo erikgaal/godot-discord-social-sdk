@@ -85,6 +85,10 @@ func _test_enums_present() -> void:
 	_check(inst.STATUS_HTTP_WAIT == 6, "STATUS_HTTP_WAIT == 6")
 	_check(inst.ACTIVITY_PLAYING == 0, "ACTIVITY_PLAYING == 0")
 	_check(inst.ACTIVITY_COMPETING == 5, "ACTIVITY_COMPETING == 5")
+	_check(inst.STATUS_DISPLAY_NAME == 0, "STATUS_DISPLAY_NAME == 0")
+	_check(inst.STATUS_DISPLAY_DETAILS == 2, "STATUS_DISPLAY_DETAILS == 2")
+	_check(inst.PARTY_PRIVACY_PRIVATE == 0, "PARTY_PRIVACY_PRIVATE == 0")
+	_check(inst.PARTY_PRIVACY_PUBLIC == 1, "PARTY_PRIVACY_PUBLIC == 1")
 	inst.free()
 
 

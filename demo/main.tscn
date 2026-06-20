@@ -112,6 +112,14 @@ text = "Type:"
 unique_name_in_owner = true
 layout_mode = 2
 
+[node name="StatusDisplayLabel" type="Label" parent="Margin/VBox/TypeRow"]
+layout_mode = 2
+text = "Show:"
+
+[node name="StatusDisplayOption" type="OptionButton" parent="Margin/VBox/TypeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+
 [node name="ElapsedCheck" type="CheckBox" parent="Margin/VBox/TypeRow"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -152,6 +160,14 @@ min_value = 1.0
 max_value = 99.0
 value = 4.0
 
+[node name="PartyPrivacyLabel" type="Label" parent="Margin/VBox/PartyRow"]
+layout_mode = 2
+text = "privacy:"
+
+[node name="PartyPrivacyOption" type="OptionButton" parent="Margin/VBox/PartyRow"]
+unique_name_in_owner = true
+layout_mode = 2
+
 [node name="AssetsRow" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
 
@@ -178,6 +194,33 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "small_text"
+
+[node name="ButtonsRow" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="Button1LabelEdit" type="LineEdit" parent="Margin/VBox/ButtonsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Button 1 label"
+
+[node name="Button1UrlEdit" type="LineEdit" parent="Margin/VBox/ButtonsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Button 1 url"
+
+[node name="Button2LabelEdit" type="LineEdit" parent="Margin/VBox/ButtonsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Button 2 label"
+
+[node name="Button2UrlEdit" type="LineEdit" parent="Margin/VBox/ButtonsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Button 2 url"
 
 [node name="PresenceButtonRow" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2

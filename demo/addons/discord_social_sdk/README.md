@@ -85,13 +85,23 @@ the token was issued for your app — no client-side token to trust.
   Discord.set_activity({
       "type": DiscordClient.ACTIVITY_PLAYING,   # default if omitted
       "details": "Playing Capture the Flag",    # top line
+      "details_url": "https://example.com",     # makes the details line clickable
       "state": "In Match",                      # second line
+      "state_url": "https://example.com",       # makes the state line clickable
+      "status_display_type": DiscordClient.STATUS_DISPLAY_DETAILS,  # which line shows by the name
       "timestamps": {"start": 1718400000},      # Unix secs; shows elapsed/remaining
-      "party": {"id": "abc", "size": 2, "max": 4},   # shows "2 of 4"
-      "assets": {                               # image = Art Asset name (Dev Portal) or URL
-          "large_image": "map_dust2", "large_text": "Dust II",
-          "small_image": "rank_gold", "small_text": "Gold III",
+      "party": {                                # shows "2 of 4"
+          "id": "abc", "size": 2, "max": 4,
+          "privacy": DiscordClient.PARTY_PRIVACY_PUBLIC,
       },
+      "assets": {                               # image = Art Asset name (Dev Portal) or URL
+          "large_image": "map_dust2", "large_text": "Dust II", "large_url": "https://example.com",
+          "small_image": "rank_gold", "small_text": "Gold III", "small_url": "https://example.com",
+          "invite_cover_image": "cover",        # cover art for game invites
+      },
+      "buttons": [                              # up to two link buttons
+          {"label": "Website", "url": "https://example.com"},
+      ],
   })
   ```
   Omitted keys are left unset; empty strings are ignored. (Join/spectate `secrets` and
@@ -124,4 +134,5 @@ Each release notes the SDK version it was built against; call
 - `friend_request_sent(success: bool, error: String)`
 
 **Enums** — `STATUS_DISCONNECTED/CONNECTING/CONNECTED/READY/RECONNECTING/DISCONNECTING/HTTP_WAIT`,
-`ACTIVITY_PLAYING/STREAMING/LISTENING/WATCHING/CUSTOM/COMPETING`.
+`ACTIVITY_PLAYING/STREAMING/LISTENING/WATCHING/CUSTOM/COMPETING`,
+`STATUS_DISPLAY_NAME/STATE/DETAILS`, `PARTY_PRIVACY_PRIVATE/PUBLIC`.
