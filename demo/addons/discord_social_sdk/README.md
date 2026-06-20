@@ -79,6 +79,33 @@ the token was issued for your app — no client-side token to trust.
   `initialize()` already sets this to the Godot process.
 - `disconnect_client()`
 - `set_rich_presence(details: String, state: String, activity_type := DiscordClient.ACTIVITY_PLAYING)`
+  — shortcut for the common details/state/type case.
+- `set_activity(activity: Dictionary)` — full Rich Presence (Activity). Recognised keys:
+  ```gdscript
+  Discord.set_activity({
+      "type": DiscordClient.ACTIVITY_PLAYING,   # default if omitted
+      "details": "Playing Capture the Flag",    # top line
+      "details_url": "https://example.com",     # makes the details line clickable
+      "state": "In Match",                      # second line
+      "state_url": "https://example.com",       # makes the state line clickable
+      "status_display_type": DiscordClient.STATUS_DISPLAY_DETAILS,  # which line shows by the name
+      "timestamps": {"start": 1718400000},      # Unix secs; shows elapsed/remaining
+      "party": {                                # shows "2 of 4"
+          "id": "abc", "size": 2, "max": 4,
+          "privacy": DiscordClient.PARTY_PRIVACY_PUBLIC,
+      },
+      "assets": {                               # image = Art Asset name (Dev Portal) or URL
+          "large_image": "map_dust2", "large_text": "Dust II", "large_url": "https://example.com",
+          "small_image": "rank_gold", "small_text": "Gold III", "small_url": "https://example.com",
+          "invite_cover_image": "cover",        # cover art for game invites
+      },
+      "buttons": [                              # up to two link buttons
+          {"label": "Website", "url": "https://example.com"},
+      ],
+  })
+  ```
+  Omitted keys are left unset; empty strings are ignored. (Join/spectate `secrets` and
+  `supported_platforms` aren't bound yet — they need invite-event handling.)
 - `clear_rich_presence()`
 - `send_discord_friend_request(username: String)`
 - `get_current_user() -> Dictionary` — `{ id, username, display_name }`.
@@ -107,4 +134,5 @@ Each release notes the SDK version it was built against; call
 - `friend_request_sent(success: bool, error: String)`
 
 **Enums** — `STATUS_DISCONNECTED/CONNECTING/CONNECTED/READY/RECONNECTING/DISCONNECTING/HTTP_WAIT`,
-`ACTIVITY_PLAYING/STREAMING/LISTENING/WATCHING/CUSTOM/COMPETING`.
+`ACTIVITY_PLAYING/STREAMING/LISTENING/WATCHING/CUSTOM/COMPETING`,
+`STATUS_DISPLAY_NAME/STATE/DETAILS`, `PARTY_PRIVACY_PRIVATE/PUBLIC`.

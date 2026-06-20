@@ -58,7 +58,7 @@ func _test_methods_present() -> void:
 	for m in [
 		"initialize", "is_initialized", "connect_with_token", "begin_authorization",
 		"request_authorization_code",
-		"set_game_window_pid", "disconnect_client", "set_rich_presence",
+		"set_game_window_pid", "disconnect_client", "set_rich_presence", "set_activity",
 		"clear_rich_presence", "send_discord_friend_request", "get_current_user",
 		"get_status", "get_sdk_version", "poll",
 	]:
@@ -85,6 +85,10 @@ func _test_enums_present() -> void:
 	_check(inst.STATUS_HTTP_WAIT == 6, "STATUS_HTTP_WAIT == 6")
 	_check(inst.ACTIVITY_PLAYING == 0, "ACTIVITY_PLAYING == 0")
 	_check(inst.ACTIVITY_COMPETING == 5, "ACTIVITY_COMPETING == 5")
+	_check(inst.STATUS_DISPLAY_NAME == 0, "STATUS_DISPLAY_NAME == 0")
+	_check(inst.STATUS_DISPLAY_DETAILS == 2, "STATUS_DISPLAY_DETAILS == 2")
+	_check(inst.PARTY_PRIVACY_PRIVATE == 0, "PARTY_PRIVACY_PRIVATE == 0")
+	_check(inst.PARTY_PRIVACY_PUBLIC == 1, "PARTY_PRIVACY_PUBLIC == 1")
 	inst.free()
 
 

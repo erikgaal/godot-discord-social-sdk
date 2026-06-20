@@ -3,6 +3,7 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/os.hpp>
 #include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 // discordpp.h is included WITHOUT DISCORDPP_IMPLEMENTATION here; the
@@ -22,6 +23,100 @@ std::string to_std(const String &s) {
 String to_godot(const std::string &s) {
 	return String::utf8(s.c_str());
 }
+
+// Set a string field only when present and non-empty (empty == "leave unset").
+template <typename Setter>
+void apply_string(const Dictionary &d, const char *key, Setter setter) {
+	if (d.has(key)) {
+		String s = d[key];
+		if (!s.is_empty()) {
+			setter(to_std(s));
+		}
+	}
+}
+
+// Translate a GDScript Dictionary into a discordpp::Activity. Unknown keys are ignored.
+// Kept here (not in the header) so discordpp.h stays out of the public header.
+discordpp::Activity build_activity(const Dictionary &d) {
+	discordpp::Activity activity;
+
+	int type_val = 0;  // 0 == ACTIVITY_PLAYING
+	if (d.has("type")) {
+		type_val = (int)(int64_t)d["type"];
+	}
+	activity.SetType((discordpp::ActivityTypes)type_val);
+
+	apply_string(d, "name", [&](std::string v) { activity.SetName(v); });
+	apply_string(d, "details", [&](std::string v) { activity.SetDetails(v); });
+	apply_string(d, "details_url", [&](std::string v) { activity.SetDetailsUrl(v); });
+	apply_string(d, "state", [&](std::string v) { activity.SetState(v); });
+	apply_string(d, "state_url", [&](std::string v) { activity.SetStateUrl(v); });
+
+	if (d.has("status_display_type")) {
+		activity.SetStatusDisplayType((discordpp::StatusDisplayTypes)(int)(int64_t)d["status_display_type"]);
+	}
+
+	if (d.has("timestamps")) {
+		Dictionary t = d["timestamps"];
+		discordpp::ActivityTimestamps ts;
+		if (t.has("start")) {
+			ts.SetStart((uint64_t)(int64_t)t["start"]);
+		}
+		if (t.has("end")) {
+			ts.SetEnd((uint64_t)(int64_t)t["end"]);
+		}
+		activity.SetTimestamps(ts);
+	}
+
+	if (d.has("party")) {
+		Dictionary p = d["party"];
+		discordpp::ActivityParty party;
+		apply_string(p, "id", [&](std::string v) { party.SetId(v); });
+		if (p.has("size")) {
+			party.SetCurrentSize((int32_t)(int64_t)p["size"]);
+		}
+		if (p.has("max")) {
+			party.SetMaxSize((int32_t)(int64_t)p["max"]);
+		}
+		if (p.has("privacy")) {
+			party.SetPrivacy((discordpp::ActivityPartyPrivacy)(int)(int64_t)p["privacy"]);
+		}
+		activity.SetParty(party);
+	}
+
+	if (d.has("assets")) {
+		Dictionary a = d["assets"];
+		discordpp::ActivityAssets assets;
+		apply_string(a, "large_image", [&](std::string v) { assets.SetLargeImage(v); });
+		apply_string(a, "large_text", [&](std::string v) { assets.SetLargeText(v); });
+		apply_string(a, "large_url", [&](std::string v) { assets.SetLargeUrl(v); });
+		apply_string(a, "small_image", [&](std::string v) { assets.SetSmallImage(v); });
+		apply_string(a, "small_text", [&](std::string v) { assets.SetSmallText(v); });
+		apply_string(a, "small_url", [&](std::string v) { assets.SetSmallUrl(v); });
+		apply_string(a, "invite_cover_image", [&](std::string v) { assets.SetInviteCoverImage(v); });
+		activity.SetAssets(assets);
+	}
+
+	// Up to two link buttons. Each entry is { label, url }; both are required for
+	// the button to be useful, so skip entries missing either.
+	if (d.has("buttons")) {
+		Array buttons = d["buttons"];
+		for (int i = 0; i < buttons.size(); i++) {
+			Dictionary b = buttons[i];
+			String label = b.get("label", "");
+			String url = b.get("url", "");
+			if (label.is_empty() || url.is_empty()) {
+				continue;
+			}
+			discordpp::ActivityButton button;
+			button.SetLabel(to_std(label));
+			button.SetUrl(to_std(url));
+			activity.AddButton(button);
+		}
+	}
+
+	return activity;
+}
 } // namespace
 
 DiscordClient::DiscordClient() {}
@@ -40,6 +135,7 @@ void DiscordClient::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_game_window_pid", "pid"), &DiscordClient::set_game_window_pid);
 	ClassDB::bind_method(D_METHOD("disconnect_client"), &DiscordClient::disconnect_client);
 	ClassDB::bind_method(D_METHOD("set_rich_presence", "details", "state", "activity_type"), &DiscordClient::set_rich_presence, DEFVAL(ACTIVITY_PLAYING));
+	ClassDB::bind_method(D_METHOD("set_activity", "activity"), &DiscordClient::set_activity);
 	ClassDB::bind_method(D_METHOD("clear_rich_presence"), &DiscordClient::clear_rich_presence);
 	ClassDB::bind_method(D_METHOD("send_discord_friend_request", "username"), &DiscordClient::send_discord_friend_request);
 	ClassDB::bind_method(D_METHOD("get_current_user"), &DiscordClient::get_current_user);
@@ -63,6 +159,15 @@ void DiscordClient::_bind_methods() {
 	BIND_ENUM_CONSTANT(ACTIVITY_WATCHING);
 	BIND_ENUM_CONSTANT(ACTIVITY_CUSTOM);
 	BIND_ENUM_CONSTANT(ACTIVITY_COMPETING);
+
+	// StatusDisplayType enum
+	BIND_ENUM_CONSTANT(STATUS_DISPLAY_NAME);
+	BIND_ENUM_CONSTANT(STATUS_DISPLAY_STATE);
+	BIND_ENUM_CONSTANT(STATUS_DISPLAY_DETAILS);
+
+	// PartyPrivacy enum
+	BIND_ENUM_CONSTANT(PARTY_PRIVACY_PRIVATE);
+	BIND_ENUM_CONSTANT(PARTY_PRIVACY_PUBLIC);
 
 	// Signals. The `status` argument is typed as the DiscordClient.Status enum
 	// so GDScript handlers get the enum type (not a bare int).
@@ -220,16 +325,20 @@ void DiscordClient::disconnect_client() {
 }
 
 void DiscordClient::set_rich_presence(const String &details, const String &state, ActivityType activity_type) {
-	ERR_FAIL_NULL_MSG(client_, "DiscordClient not initialized. Call initialize() first.");
-	discordpp::Activity activity;
-	activity.SetType((discordpp::ActivityTypes)activity_type);
+	Dictionary d;
+	d["type"] = (int)activity_type;
 	if (!details.is_empty()) {
-		activity.SetDetails(to_std(details));
+		d["details"] = details;
 	}
 	if (!state.is_empty()) {
-		activity.SetState(to_std(state));
+		d["state"] = state;
 	}
-	client_->UpdateRichPresence(activity, [this](discordpp::ClientResult result) {
+	set_activity(d);
+}
+
+void DiscordClient::set_activity(const Dictionary &activity) {
+	ERR_FAIL_NULL_MSG(client_, "DiscordClient not initialized. Call initialize() first.");
+	client_->UpdateRichPresence(build_activity(activity), [this](discordpp::ClientResult result) {
 		emit_signal("rich_presence_updated", result.Successful(), to_godot(result.Error()));
 	});
 }
