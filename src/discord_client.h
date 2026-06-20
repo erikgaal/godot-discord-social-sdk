@@ -64,6 +64,15 @@ public:
 	// `authorization_completed`.
 	void begin_authorization();
 
+	// Run only the PKCE authorization step (no token exchange) and emit
+	// `authorization_code_received` with the authorization `code`, the
+	// `redirect_uri`, and the PKCE `code_verifier`. Forward all three to your own
+	// backend so it can exchange the code for a token using its client_secret
+	// (POST https://discord.com/api/v10/oauth2/token), then hand the resulting
+	// access token back to the client to pass to connect_with_token(). Use this
+	// instead of begin_authorization() when your backend should own the token.
+	void request_authorization_code();
+
 	// Tell the SDK which window/process the authentication overlay should
 	// attach to. initialize() already sets this to the running Godot process;
 	// override it only if your game window lives in a different process.

@@ -57,6 +57,7 @@ func _test_methods_present() -> void:
 	var inst = ClassDB.instantiate("DiscordClient")
 	for m in [
 		"initialize", "is_initialized", "connect_with_token", "begin_authorization",
+		"request_authorization_code",
 		"set_game_window_pid", "disconnect_client", "set_rich_presence",
 		"clear_rich_presence", "send_discord_friend_request", "get_current_user",
 		"get_status", "get_sdk_version", "poll",
@@ -70,7 +71,8 @@ func _test_signals_present() -> void:
 	var names = inst.get_signal_list().map(func(s): return s.name)
 	for s in [
 		"status_changed", "client_ready", "log_message",
-		"authorization_completed", "rich_presence_updated", "friend_request_sent",
+		"authorization_completed", "authorization_code_received",
+		"rich_presence_updated", "friend_request_sent",
 	]:
 		_check(s in names, "signal %s exists" % s)
 	inst.free()

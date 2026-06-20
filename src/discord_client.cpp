@@ -36,6 +36,7 @@ void DiscordClient::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_initialized"), &DiscordClient::is_initialized);
 	ClassDB::bind_method(D_METHOD("connect_with_token", "access_token"), &DiscordClient::connect_with_token);
 	ClassDB::bind_method(D_METHOD("begin_authorization"), &DiscordClient::begin_authorization);
+	ClassDB::bind_method(D_METHOD("request_authorization_code"), &DiscordClient::request_authorization_code);
 	ClassDB::bind_method(D_METHOD("set_game_window_pid", "pid"), &DiscordClient::set_game_window_pid);
 	ClassDB::bind_method(D_METHOD("disconnect_client"), &DiscordClient::disconnect_client);
 	ClassDB::bind_method(D_METHOD("set_rich_presence", "details", "state", "activity_type"), &DiscordClient::set_rich_presence, DEFVAL(ACTIVITY_PLAYING));
@@ -77,6 +78,12 @@ void DiscordClient::_bind_methods() {
 			PropertyInfo(Variant::INT, "severity")));
 	ADD_SIGNAL(MethodInfo("authorization_completed",
 			PropertyInfo(Variant::BOOL, "success"),
+			PropertyInfo(Variant::STRING, "error")));
+	ADD_SIGNAL(MethodInfo("authorization_code_received",
+			PropertyInfo(Variant::BOOL, "success"),
+			PropertyInfo(Variant::STRING, "code"),
+			PropertyInfo(Variant::STRING, "redirect_uri"),
+			PropertyInfo(Variant::STRING, "code_verifier"),
 			PropertyInfo(Variant::STRING, "error")));
 	ADD_SIGNAL(MethodInfo("rich_presence_updated",
 			PropertyInfo(Variant::BOOL, "success"),
@@ -172,6 +179,32 @@ void DiscordClient::begin_authorization() {
 										}
 									});
 						});
+			});
+}
+
+void DiscordClient::request_authorization_code() {
+	ERR_FAIL_NULL_MSG(client_, "DiscordClient not initialized. Call initialize() first.");
+
+	// PKCE: same verifier/challenge as begin_authorization(), but we stop after
+	// Authorize() and hand the code + verifier to GDScript so the game's backend
+	// can perform the token exchange with its client_secret.
+	auto verifier = std::make_shared<discordpp::AuthorizationCodeVerifier>(
+			client_->CreateAuthorizationCodeVerifier());
+
+	discordpp::AuthorizationArgs args{};
+	args.SetClientId(application_id_);
+	args.SetScopes(discordpp::Client::GetDefaultPresenceScopes());
+	args.SetCodeChallenge(verifier->Challenge());
+
+	client_->Authorize(args,
+			[this, verifier](discordpp::ClientResult result, std::string code, std::string redirect_uri) {
+				if (!result.Successful()) {
+					emit_signal("authorization_code_received", false, String(), String(), String(),
+							to_godot(result.Error()));
+					return;
+				}
+				emit_signal("authorization_code_received", true, to_godot(code), to_godot(redirect_uri),
+						to_godot(verifier->Verifier()), String());
 			});
 }
 

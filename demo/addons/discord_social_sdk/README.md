@@ -39,6 +39,33 @@ func _on_status_changed(status: int, error: int, error_detail: int) -> void:
 If you already have an OAuth2 bearer token (e.g. from your own backend), skip
 `begin_authorization()` and call `Discord.connect_with_token(token)` instead.
 
+### Backend login
+
+To authenticate players against your own backend, let the backend own the token
+exchange instead of doing it on the client. Call `request_authorization_code()`,
+forward the result to your server, and connect with the token it returns:
+
+```gdscript
+func _ready() -> void:
+    Discord.authorization_code_received.connect(_on_code)
+    Discord.initialize(YOUR_APPLICATION_ID)
+    Discord.request_authorization_code()           # PKCE authorize only
+
+func _on_code(success: bool, code: String, redirect_uri: String,
+        code_verifier: String, error: String) -> void:
+    if not success:
+        push_error(error); return
+    # POST {code, redirect_uri, code_verifier} to your backend. The backend
+    # exchanges them at https://discord.com/api/v10/oauth2/token with
+    # grant_type=authorization_code + your client_id/client_secret, then returns
+    # the access token (and mints its own session for the player).
+    var token := await _exchange_on_backend(code, redirect_uri, code_verifier)
+    Discord.connect_with_token(token)
+```
+
+Because the backend performs the exchange with its `client_secret`, it *knows*
+the token was issued for your app — no client-side token to trust.
+
 ## API
 
 `DiscordClient` is a `Node`. It pumps the SDK callback queue every frame from
@@ -55,6 +82,10 @@ If you already have an OAuth2 bearer token (e.g. from your own backend), skip
 - `clear_rich_presence()`
 - `send_discord_friend_request(username: String)`
 - `get_current_user() -> Dictionary` — `{ id, username, display_name }`.
+- `request_authorization_code()` — run only the PKCE authorization step (no token
+  exchange) and emit `authorization_code_received` with the `code`,
+  `redirect_uri`, and `code_verifier`. For backend-driven login: see *Backend
+  login* below.
 - `get_status() -> int` — one of the `STATUS_*` constants.
 - `get_sdk_version() -> Dictionary` — `{ major, minor, patch, hash, string }`
   for the Discord Social SDK the addon is running against. Works without
@@ -71,6 +102,7 @@ Each release notes the SDK version it was built against; call
 - `client_ready()` — fired when status becomes `STATUS_READY`.
 - `log_message(message: String, severity: int)`
 - `authorization_completed(success: bool, error: String)`
+- `authorization_code_received(success: bool, code: String, redirect_uri: String, code_verifier: String, error: String)`
 - `rich_presence_updated(success: bool, error: String)`
 - `friend_request_sent(success: bool, error: String)`
 
