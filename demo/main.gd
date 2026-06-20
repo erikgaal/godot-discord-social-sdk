@@ -9,7 +9,25 @@ extends Control
 @onready var user_label: Label = %UserLabel
 @onready var details_edit: LineEdit = %DetailsEdit
 @onready var state_edit: LineEdit = %StateEdit
+@onready var type_option: OptionButton = %TypeOption
+@onready var elapsed_check: CheckBox = %ElapsedCheck
+@onready var party_id_edit: LineEdit = %PartyIdEdit
+@onready var party_size_spin: SpinBox = %PartySizeSpin
+@onready var party_max_spin: SpinBox = %PartyMaxSpin
+@onready var large_image_edit: LineEdit = %LargeImageEdit
+@onready var large_text_edit: LineEdit = %LargeTextEdit
+@onready var small_image_edit: LineEdit = %SmallImageEdit
+@onready var small_text_edit: LineEdit = %SmallTextEdit
 @onready var friend_edit: LineEdit = %FriendEdit
+
+const ACTIVITY_TYPES := [
+	["Playing", DiscordClient.ACTIVITY_PLAYING],
+	["Streaming", DiscordClient.ACTIVITY_STREAMING],
+	["Listening", DiscordClient.ACTIVITY_LISTENING],
+	["Watching", DiscordClient.ACTIVITY_WATCHING],
+	["Custom", DiscordClient.ACTIVITY_CUSTOM],
+	["Competing", DiscordClient.ACTIVITY_COMPETING],
+]
 @onready var log_text: RichTextLabel = %LogText
 
 const STATUS_NAMES := {
@@ -30,6 +48,8 @@ func _ready() -> void:
 	Discord.authorization_completed.connect(_on_authorization_completed)
 	Discord.rich_presence_updated.connect(_on_rich_presence_updated)
 	Discord.friend_request_sent.connect(_on_friend_request_sent)
+	for entry in ACTIVITY_TYPES:
+		type_option.add_item(entry[0], entry[1])
 	_set_status(DiscordClient.STATUS_DISCONNECTED)
 
 
@@ -73,20 +93,40 @@ func _on_connect_token_pressed() -> void:
 
 
 func _on_set_presence_pressed() -> void:
-	# Showcase the full set_activity() API: details/state from the fields plus a
-	# live elapsed timer, a party, and image assets. Image names must match Art
-	# Assets configured for your app in the Discord Developer Portal (or be URLs)
-	# to actually render; unknown names simply show no image.
-	Discord.set_activity({
-		"type": DiscordClient.ACTIVITY_PLAYING,
+	# Build a full Activity from the UI. Only non-empty fields are included so the
+	# update stays valid (Discord rejects e.g. an unresolvable image asset).
+	var activity := {
+		"type": type_option.get_selected_id(),
 		"details": details_edit.text,
 		"state": state_edit.text,
-		"timestamps": {"start": int(Time.get_unix_time_from_system())},
-		"party": {"id": "demo-party", "size": 1, "max": 4},
-		"assets": {
-			"large_image": "logo", "large_text": "Discord Social SDK Demo",
-		},
-	})
+	}
+
+	if elapsed_check.button_pressed:
+		activity["timestamps"] = {"start": int(Time.get_unix_time_from_system())}
+
+	var party_id := party_id_edit.text.strip_edges()
+	if not party_id.is_empty():
+		activity["party"] = {
+			"id": party_id,
+			"size": int(party_size_spin.value),
+			"max": int(party_max_spin.value),
+		}
+
+	# Note: image values must match Art Assets configured for your app in the
+	# Discord Developer Portal (or be URLs), or the whole update fails.
+	var assets := {}
+	if not large_image_edit.text.strip_edges().is_empty():
+		assets["large_image"] = large_image_edit.text
+	if not large_text_edit.text.strip_edges().is_empty():
+		assets["large_text"] = large_text_edit.text
+	if not small_image_edit.text.strip_edges().is_empty():
+		assets["small_image"] = small_image_edit.text
+	if not small_text_edit.text.strip_edges().is_empty():
+		assets["small_text"] = small_text_edit.text
+	if not assets.is_empty():
+		activity["assets"] = assets
+
+	Discord.set_activity(activity)
 	_log("Updating rich presence via set_activity…")
 
 
